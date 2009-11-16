@@ -1,0 +1,66 @@
+Var.Debug := False 
+'****************************************************************************************
+' Original Code: Jason Cornwall, September 2008 
+' 
+' Takes a configuration string for a layoutelement and for each switch clears out obsolete 
+'	entity ID's. 
+' 
+' 
+' Called from: 
+'   * LayoutCleanElements 
+'****************************************************************************************
+
+Var.Items := Std.SwitchesToItems(Value := In.Switches) 
+'Only work with the relevant items as defined in CheckLayoutSwitches 
+Var.RelItems	:= Macro.Execute.LayoutRelevantSwitches(Switches := Var.Items, ElementName := In.ElementName) 
+
+'Iterate over each relevant switch. 
+For Each Var.Item in Var.RelItems 
+ Begin 
+	If Var.Item.DefTable == "Recurse" Then 
+	 Begin 
+		If Var.Debug Then Std.MsgBox(Message := "Recursing for item = "|Var.Items.(Var.Item.TheSwitch)) 
+
+		'If the definition from CheckLayoutSwitches is telling us to recurse, our switch contains a string of switches. 
+		Var.Items.(Var.Item.TheSwitch)	:= Macro.Execute.LayoutSwitchesAmend(Switches := Var.Items.(Var.Item.TheSwitch), ElementName := In.ElementName, cr := False) 
+	 End 
+ 	Else 
+	 Begin 
+		Var.NewString	 := New.String 
+		Var.OldString	 := Var.Items.(Var.Item.TheSwitch) 
+		Var.EntityTypeIDs	:= Macro.Execute.sysSplit(Str := Var.OldString, Splitter := ",") 
+
+		'Iterate over each entity id in the switch, making sure it's still relevant 
+		For Each Var.EntityTypeID in Var.EntityTypeIDs 
+		 Begin 
+			Select Var.Item.DefType 
+			Case "Int": 
+				Var.PresentSQL := "Select Case When "|Var.EntityTypeID|" in (Select "|Var.Item.DefCol|" From "|Var.Item.DefTable|") Then 'True' Else 'False' End" 
+			Case "Str": 
+				Var.PresentSQL := "Select Case When "|Var.EntityTypeID.SQLString|" in (Select "|Var.Item.DefCol|" From "|Var.Item.DefTable|") Then 'True' Else 'False' End" 
+			Case Else: 
+				Std.MsgBox(Message := "Unknown type") 
+
+			Var.Present := Std.CBoo(Value := Std.ExecuteSQL(SQL := Var.PresentSQL).Value) 
+
+			If Var.Present Then 
+			 Begin 
+				'If it still exists, add it to our string. 
+				If Var.NewString.Length > 0 Then Var.NewString := Var.NewString + "," 
+
+				Var.NewString := Var.NewString + Std.CStr(Value := Var.EntityTypeID) 
+			 End 
+		 End 
+
+		Var.Items.(Var.Item.TheSwitch) := Var.NewString 
+
+		If Var.Debug Then Std.MsgBox(Message := "Old Items := "|Var.OldString|crlf|"New Items := "|Var.NewString) 
+	End 
+ End 
+
+'Get our itemlist back to a string of switches that's consumable for layout elements. 
+Var.NewConfigStr	:= Macro.Execute.LayoutItemsToSwitch(Items := Var.Items, RelItems := Var.RelItems, cr := In.cr) 
+
+If Var.Debug Then Std.MsgBox(Message := "Old String := "|In.Switches|crlf|"New String := "|Var.NewConfigStr) 
+
+Exit Macro Var.NewConfigStr

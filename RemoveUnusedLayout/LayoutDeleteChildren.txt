@@ -1,0 +1,30 @@
+Var.SQL := "select le.layoutelementid, le.elementlayoutid from tbllayoutelement le" |CRLF|
+		"left join tbllayout l on l.layoutid = le.layoutid" |CRLF|
+		"where l.layoutid = "|In.LayoutID
+
+Var.Rows := Std.ExecuteSQL(SQL := Var.SQL).Rows
+
+Try
+ Begin
+  For Each Var.Row in Var.Rows
+   Begin
+  	'If true then we possible have children that should be deleted before proceeding
+	If Std.IsPresent(Value := Var.Row.ElementLayoutID) Then
+		If Not Macro.Execute.LayoutDeleteChildren(LayoutID := Var.Row.ElementLayoutID) Then Exit Macro False
+		
+	Std.ExecuteSQL(SQL := "Delete from tbllayoutelement where layoutelementid = "|Var.Row.LayoutelementID)
+
+	If Std.IsPresent(Value := Var.Row.ElementLayoutID) and Macro.Execute.NoLayoutElementsForLayout(LayoutID := Var.Row.ElementLayoutID) Then
+		Std.ExecuteSQL(SQL := "Delete from tbllayout where layoutid = "|Var.Row.ElementLayoutID)
+   End
+ End
+
+
+On Failure
+ Begin
+	Std.DisplayComment(Comment := FailureMessage |CRLF|CRLF|Var.SQL|CRLF|CRLF|Var.Row.LayoutElementID)
+	
+	Exit Macro False
+ End
+
+Exit Macro True

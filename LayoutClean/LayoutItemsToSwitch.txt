@@ -1,0 +1,53 @@
+Var.Debug := False 
+'****************************************************************************************
+' Original Code: Jason Cornwall, September 2008 
+' 
+' Takes an itemlist and returns a string of switches, for use in a layoutelements 
+'	configurationdetails. Regular ItemsToSwtiches functions could not be used because: 
+'	 1.) Resolve wants crlf's between each switch, which the standard function 
+'	 does not do 
+'	 2.) Resolve is particular about which switches have to have a defined value 
+'	 (ie. "/Switch = value"). Some allow (and require) that there be no 
+'	 value defined, with the format being "/Switch" 
+' 
+' Called from LayoutSwitchesAmend 
+'****************************************************************************************
+
+Var.Switches := New.String 
+
+For Each Var.Item in In.Items 
+ Begin 
+	Var.ItemString	:= In.Items(Var.Item) 
+
+	Var.IsRelevant := False 
+
+	'This check for relevancy is in lieu of knowing what the format of the switch needs to be. If it's relevant, we know it has to either have a value or not exist. 
+	For each Var.relitem in In.RelItems 
+	If var.item == var.relitem.TheSwitch then Var.IsRelevant := true 
+
+	If Std.IsPresent(Value := Var.ItemString) or not (Var.IsRelevant) Then 
+	 Begin 
+		Var.IsSpaces	:= Var.ItemString.Find(SubString := " ") > 0 
+		Var.IsSlash	:= Var.ItemString.Find(SubString := "/") > 0 
+
+		'Insert a carriege return if we're dealing with top level switches
+		If (Var.Switches.Length > 0) AND In.cr Then Var.Switches := Var.Switches | crlf 
+
+		'Resolve likes the switches to have quotes around the value only when there is spaces present in the string.
+		If Var.IsSpaces or Var.IsSlash Then 
+			Var.End	:= """" 
+		Else 
+			Var.End := "" 
+
+		'If we're not dealing with a switch relevant to our layout fixing, we need to put in the equals sign if and only if there is a value. 
+		If (not Std.IsPresent(Value := Var.ItemString)) and (not Var.IsRelevant) Then 
+			Var.E	:= "" 
+		Else 
+			Var.E	:= "=" 
+
+		'String construction. 
+		Var.Switches := Var.Switches |"/"|Var.Item|Var.E|Var.End|Var.ItemString|Var.End 
+	 End 
+ End 
+
+Exit Macro Var.Switches

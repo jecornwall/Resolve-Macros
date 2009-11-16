@@ -1,0 +1,50 @@
+Var.Debug := False 
+'****************************************************************************************
+' Original Code: Jason Cornwall, September 2008 
+' 
+' Root macro for a suite of layout cleaning macros. The idea behind these is to get rid of 
+'	id's in layouts that reference things that no longer exist, which became a problem 
+'	with the advent of the Import Export tool. This macro edits your database with an 
+'	executesql, so best to backup first in case something horrible happens. 
+' 
+' 
+' Called from: 
+'   * An application level task 
+'****************************************************************************************
+
+'A collection of element names that can have dodgy codes. Standard SQL Pattern matching can be used here. 
+Var.ValidElements	:= New.Collection 
+Var.ValidElements.Add(Value := "CaseList".SQLString) 
+Var.ValidElements.Add(Value := "RelatedCases".SQLString) 
+Var.ValidElements.Add(Value := "PersonRoleHolders".SQLString) 
+Var.ValidElements.Add(Value := "CaseRoleHolders".SQLString) 
+Var.ValidElements.Add(Value := "PartyDetails".SQLString) 
+Var.ValidElements.Add(Value := "ButtonOpenRoleHolder".SQLString) 
+Var.ValidElements.Add(Value := "CaseDocuments".SQLString) 
+Var.ValidElements.Add(Value := "R[CP]H%Holder".SQLString) 
+Var.ValidElements.Add(Value := "R[CP]O%Owner".SQLString) 
+
+Var.ValidElementsStr	:= Macro.Execute.LayoutPatMatchIn(Col := Var.ValidElements, Colname := "ElementName") 
+
+Var.SQL := 	"select LayoutElementID, ElementName, ConfigurationDetails"|crlf| 
+		" from tblLayoutElement "|crlf| 
+		" where "| Var.ValidElementsStr 
+
+If Var.Debug Then Std.DisplayComment(Comment := Var.SQL) 
+
+Var.LayoutRows := Std.ExecuteSQL(SQL := Var.SQL).Rows 
+
+For Each Var.LayoutRow in Var.LayoutRows 
+ Begin 
+	Var.LayoutID	 := Var.LayoutRow.LayoutElementID 
+
+	'This replaces the configuration details string with one without obsolete entity id's 
+	Var.NewConfigStr	:= Macro.Execute.LayoutSwitchesAmend(Switches := Var.LayoutRow.ConfigurationDetails, ElementName := Var.LayoutRow.ElementName, cr := True) 
+
+	If Var.Debug Then Std.MsgBox(Message := Std.CStr(Value := Var.LayoutID) |crlf| Var.NewConfigStr) 
+
+	Var.LayoutSetSQL := "Update tblLayoutElement Set ConfigurationDetails = "|Var.NewConfigStr.SQLString|" where layoutelementid = "|Var.LayoutID 
+	Std.ExecuteSQL(SQL := Var.LayoutSetSQL) 
+ End 
+
+Std.MsgBox(Message := "Done!")

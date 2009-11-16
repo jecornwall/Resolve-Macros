@@ -1,0 +1,8 @@
+If Std.IsPresent(Value := In.LayoutID) Then
+ Begin
+	Var.SQL := "Select case when exists (Select * from tbllayoutelement where elementlayoutid = "|In.layoutID|") then 'False' else 'True' end"
+	
+	Exit Macro Std.ExecuteSQL(SQL := Var.SQL).Value == "True"
+ End
+Else
+	Exit Macro True

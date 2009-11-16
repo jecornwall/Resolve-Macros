@@ -1,0 +1,19 @@
+'Original Code Jason Cornwall 13/11/09
+'Macro to remove unused layouts. 
+'Removes all layouts and child layouts/elements of top level layouts that are not something that should be top level (ie. the real top level was removed)
+
+Var.SQL := "select l.layoutid from tbllayout l "|CRLF|
+		"left join tbllayoutelement le on le.elementlayoutid = l.layoutid "|CRLF|
+		"where "|CRLF|
+		"le.layoutelementid is null and "|CRLF|
+		"l.presentationagent not in ('casemaint','personmaint','homepage','CaseIssueList','caselist','personlist','PersonRoleHolderList','caseroleholderlist','commentlist','casedocumentlist')"
+
+Var.Rows := Std.ExecuteSQL(SQL := Var.SQL).Rows
+
+'Children must be deleted from the lowest node to the highest
+For Each Var.Row in Var.Rows
+ Begin
+	If Not Macro.Execute.LayoutDeleteChildren(LayoutID := Var.Row.LayoutID) Then Exit Macro False
+	
+	Std.ExecuteSQL(SQL := "Delete from tbllayout where layoutid = "|Var.Row.LayoutID)
+ End

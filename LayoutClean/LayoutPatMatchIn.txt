@@ -1,0 +1,24 @@
+Var.Debug := False 
+'****************************************************************************************
+' Original Code: Jason Cornwall, September 2008 
+' 
+' Takes a collection of SQLStrings representing possible values which can include pattern 
+'	matching charactors, and returns a big string to be passed into a sqlquery in the 
+'	where clause. Effectively simulates a "where column in (n,...)", but with pattern 
+'	matching. 
+' 
+' 
+' Called from: 
+'   * LayoutCleanElements 
+'****************************************************************************************
+
+Var.Str	:= New.String 
+
+For Each Var.Item in In.Col 
+ Begin 
+	If Var.Str.Length > 0 Then Var.Str := Var.Str + " OR " 
+
+	Var.Str	:= Var.Str + In.Colname + " like " + Var.Item 
+ End 
+
+Exit Macro Var.Str

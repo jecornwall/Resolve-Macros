@@ -1,0 +1,185 @@
+Var.Debug := False 
+'****************************************************************************************
+' Original Code: Jason Cornwall, September 2008 
+' 
+' Takes a collection of switches and returns a collection of itemslists. Each itemlist 
+'	represents a switch that is relevant to the cleaning of layoutelement definitions 
+'	for obsolete entity id's. 
+' 
+' Called from: 
+'   * LayoutSwitchesAmend 
+'****************************************************************************************
+
+Var.Collection := New.Collection 
+
+For Each Var.Switch in In.Switches 
+ Begin 
+	Select Var.Switch 
+	Case "CaseToCaseOwnerRoles": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	
+	Case "PersonToCaseOwnerRoles": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	
+	Case "CaseToCaseHolderRoles": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	
+	Case "PersonToCaseHolderRoles": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	
+	Case "CaseToPersonOwnerRoles": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	
+	Case "PersonToPersonOwnerRoles": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	
+	Case "CaseToPersonHolderRoles": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	
+	Case "PersonToPersonHolderRoles": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	
+	Case "Parameters": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "Recurse" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	Case "EntityType": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		If (In.ElementName == "RelatedCases") OR (In.ElementName == "CaseList") Then 
+			Var.Parameters.DefTable	 := "tblcaseentitytype" 
+		Else 
+			Var.Parameters.DefTable	 := "tblpersontype" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	
+	Case "R1Role": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	Case "Role": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	Case "CasePartyRoles": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblrole" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	Case "DocumentCategoryID": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tbldocumentcategory" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	Case "CaseEntityTypes": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblcaseentitytype" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	Case "PersonTypes": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tblpersontype" 
+		Var.Parameters.DefCol	 := "identitycol" 
+		Var.Parameters.DefType	 := "Int" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+	Case "LayoutCode": 
+	 Begin 
+		Var.Parameters	:= New.Itemlist 
+		Var.Parameters.TheSwitch := Var.Switch 
+		Var.Parameters.DefTable	 := "tbllayout" 
+		Var.Parameters.DefCol	 := "layoutcode" 
+		Var.Parameters.DefType	 := "Str" 
+		Var.Collection.Add(Value	:= Var.Parameters) 
+	 End 
+ End 
+	
+Exit Macro Var.Collection

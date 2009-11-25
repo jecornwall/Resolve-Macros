@@ -31,7 +31,10 @@ For Each Var.Item in In.Items
 		Var.IsSlash	:= Var.ItemString.Find(SubString := "/") > 0 
 
 		'Insert a carriege return if we're dealing with top level switches
-		If (Var.Switches.Length > 0) AND In.cr Then Var.Switches := Var.Switches | crlf 
+		If (Var.Switches.Length > 0) AND In.cr Then Var.Switches := Var.Switches | crlf
+
+		'Need to double escape quotes, particulary for macro parameters
+		If Std.IsPresent(Value := Var.ItemString) Then Var.ItemString := Var.ItemString.Replace(From := """", To := """""")
 
 		'Resolve likes the switches to have quotes around the value only when there is spaces present in the string.
 		If Var.IsSpaces or Var.IsSlash Then 

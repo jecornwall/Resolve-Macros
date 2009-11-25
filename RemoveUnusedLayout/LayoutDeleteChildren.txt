@@ -8,14 +8,14 @@ Try
  Begin
   For Each Var.Row in Var.Rows
    Begin
-  	'If true then we possible have children that should be deleted before proceeding
-	If Std.IsPresent(Value := Var.Row.ElementLayoutID) Then
-		If Not Macro.Execute.LayoutDeleteChildren(LayoutID := Var.Row.ElementLayoutID) Then Exit Macro False
-		
 	Std.ExecuteSQL(SQL := "Delete from tbllayoutelement where layoutelementid = "|Var.Row.LayoutelementID)
 
 	If Std.IsPresent(Value := Var.Row.ElementLayoutID) and Macro.Execute.NoLayoutElementsForLayout(LayoutID := Var.Row.ElementLayoutID) Then
+	 Begin
+		If Not Macro.Execute.LayoutDeleteChildren(LayoutID := Var.Row.ElementLayoutID) Then Exit Macro False
+
 		Std.ExecuteSQL(SQL := "Delete from tbllayout where layoutid = "|Var.Row.ElementLayoutID)
+	 End
    End
  End
 

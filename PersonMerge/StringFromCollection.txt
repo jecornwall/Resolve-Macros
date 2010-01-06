@@ -1,0 +1,10 @@
+'StringFromCollection
+Var.String 	:= In.Col.First
+In.Col.RemoveFirst
+
+For Each Var.Item in In.Col
+ Begin
+	Var.String	:= Var.String | In.Del | Std.CStr(Value := Var.Item)
+ End
+
+Exit Macro Var.String

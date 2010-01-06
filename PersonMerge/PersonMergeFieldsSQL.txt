@@ -1,0 +1,59 @@
+'PersonMergeFieldsSQL
+Var.Debug		:= False
+
+'Grabs all the columns we want to look at, ignoring keys and such. 
+Var.ColumnDefSQL 	:= "select name from syscolumns where id = (select id from sysobjects where name = 'tblperson')"|CRLF|
+			   "and name not in ('personid','personguid','persontypeid','obsolete','createddate','createdpersonid')"
+
+Var.ColumnDefRows	:= Std.ExecuteSQL(SQL := Var.ColumnDefSQL).Rows
+Var.ColumnDefCol	:= Macro.Execute.ColumnFromRows(Rows := Var.ColumnDefRows, ColumnName := "name")
+
+Var.FirstPersonID	:= In.PersonIDs.First
+Var.FirstPersonAlias	:= "P"|Var.FirstPersonID
+Var.FromSQL		:= "from tblperson "|Var.FirstPersonAlias|CRLF
+
+Var.JoinPersonIDs	:= Macro.Execute.CopyCollection(Collection := In.PersonIDs)
+
+'Like a lot of SQL generation, this is requiring us to format the first value in the list differently from the rest
+Var.JoinPersonIDs.RemoveFirst
+
+For Each Var.PersonID in Var.JoinPersonIDs
+ Begin
+	Var.Alias	:= "P"|Var.PersonID
+	Var.FromSQL 	:= Var.FromSQL | "Left Join tblperson "|Var.Alias|" on "|Var.Alias|".PersonID = "|Var.PersonID|CRLF
+ End
+
+Var.FromSQL		:= Var.FromSQL | "Where "|Var.FirstPersonAlias|".PersonID = "|Var.FirstPersonID
+
+Var.SelectSQL	:= New.String
+Var.FirstRun	:= True
+For Each Var.Column in Var.ColumnDefCol
+ Begin
+	If Var.FirstRun Then
+		Var.SelectSQL := "Select "
+	Else
+		Var.SelectSQL := Var.SelectSQL | ","|CRLF
+
+	Var.CoalesceCol	:= New.Collection
+
+	For Each Var.PersonID in In.PersonIDs
+	 Begin
+		Var.CoalesceCol.Add(Value := "P"|Var.PersonID|".["|Var.Column|"]")
+	 End
+
+	Var.CoalesceStr	:= Macro.Execute.StringFromCollection(Col := Var.CoalesceCol, Del := ",")
+
+	Var.CoalesceSQL := "Coalesce("|Var.CoalesceStr|") as ["|Var.Column|"]"
+
+	Var.SelectSQL	:= Var.SelectSQL | Var.CoalesceSQL
+	
+	Var.FirstRun		:= False
+ End
+
+Var.SQL 	:= Var.SelectSQL |CRLF| Var.FromSQL
+
+If Var.Debug Then Std.DisplayComment(Comment := Var.SQL)
+
+Var.FirstRow := Std.ExecuteSQL(SQL := Var.SQL).FirstRow
+
+Exit Macro Var.FirstRow

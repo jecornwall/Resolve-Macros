@@ -1,0 +1,11 @@
+'PersonMergeUDFs
+Var.UDFs := Macro.Execute.PersonMergeUDFsSQL(PersonIDs := In.PersonIDs)
+	
+
+For Each Var.UDF in Var.UDFs
+ Begin
+	Var.Value := Var.UDF.(Var.UDF.Column)
+
+	If Std.IsPresent(Value := Var.Value) Then
+		In.NewPerson.SetCustomField(CustomFieldCode := Var.UDF.UDFCode, Value := Var.Value)
+ End

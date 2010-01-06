@@ -1,0 +1,30 @@
+'PersonMergeAddressesSQL
+Var.Debug := False
+
+'CodeType 9 being address types
+Var.AddressTypesSQL := "Select CodeElementCode from tblCodeElement where CodeTypeID = 9"
+Var.AddressTypes    := Std.ExecuteSQL(SQL := Var.AddressTypesSQL).Rows
+
+Var.PersonIDStr := Macro.Execute.StringFromCollection(Col := In.PersonIDs, Del := ",")
+
+Var.First := True
+Var.SQL := New.String
+
+For Each Var.AddressType in Var.AddressTypes
+ Begin
+	If Not Var.First Then
+		Var.SQL := Var.SQL | "UNION"|CRLF
+
+	Var.SQL := Var.SQL | "Select MAX(AddressID) as AddressID, AddressCode from tblPersonAddress "|CRLF|
+			"where PersonID in ("|Var.PersonIDStr|")" |CRLF|
+			"and AddressCode = "|Var.AddressType.CodeElementCode.SQLString|CRLF|
+			"Group By AddressCode"|CRLF
+
+	Var.First := False
+ End
+
+If Var.Debug Then Std.DisplayComment(Comment := Var.SQL)
+
+Var.Rows := Std.ExecuteSQL(SQL := Var.SQL).Rows
+
+Exit Macro Var.Rows

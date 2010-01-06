@@ -1,0 +1,9 @@
+'CopyCollection
+Var.NewCol	:= New.Collection
+
+For Each Var.Item in In.Collection
+ Begin
+	Var.NewCol.Add(Value	:= Var.Item)
+ End
+
+Exit Macro Var.NewCol

@@ -1,0 +1,7 @@
+Var.Fields := Macro.Execute.PersonMergeFieldsSQL(PersonIDs := In.PersonIDs)
+
+For Each Var.Field in Var.Fields
+ Begin
+	If Std.IsPresent(Value := Var.Fields.(Var.Field)) Then
+		In.NewPerson.SetField(FieldName := Var.Field, Value := Var.Fields.(Var.Field))
+ End

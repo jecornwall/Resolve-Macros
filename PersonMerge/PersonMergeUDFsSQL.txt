@@ -1,0 +1,45 @@
+'PersonMergeUDFsSQL
+Var.Debug := False
+
+Var.PersonIDStr := Macro.Execute.StringFromCollection(Col := In.PersonIDs, Del := ",")
+
+Var.CaseSQL := "CASE sq.fieldtype "|CRLF
+
+For Each Var.Type in Macro.Execute.FieldTypeMapping
+	Var.CaseSQL := Var.CaseSQL | "WHEN "|Var.Type.Code.SqlString|" THEN "|Var.Type.Column.SQLString|CRLF
+
+
+Var.CaseSQL := Var.CaseSQL | "ELSE uv.DisplayValue "|CRLF|
+		"	END as [Column], "
+
+
+Var.ColumnsSQL := 	"uv.ValueAsNumber, "|CRLF|
+			"uv.ValueAsDate, "|CRLF|
+			"uv.UDFElementID, "|CRLF|
+			"uv.ValueAsRTF, "|CRLF|
+			"uv.ValueAsText, "|CRLF|
+			"uv.DisplayValue "
+
+Var.SQL := 	"SELECT sq.UDFCode, "|CRLF|
+		Var.CaseSQL |CRLF|
+		Var.ColumnsSQL |CRLF|
+		" FROM  "|CRLF|
+		"(select u.fieldtype, "|CRLF|
+		"	u.udfcode, "|CRLF|
+		"	max(squv.udfvalueid) as udfvalueid "|CRLF|
+		"	from tbludfvalue squv  "|CRLF|
+		"	left join tbludf u on u.udfid = squv.udfid "|CRLF|
+		"	where squv.ownerid in ("|Var.PersonIDStr|") "|CRLF| 
+		"	and squv.ownertype = 'P' "|CRLF|
+		"	and squv.displayvalue is not null "|CRLF|
+		"	and squv.displayvalue <> '' "|CRLF|
+		"	and u.fieldtype <> 'MCB' "|CRLF|
+		"	group by u.fieldtype, u.udfcode) sq "|CRLF|
+		"left join tbludfvalue uv on uv.udfvalueid = sq.udfvalueid "
+
+If Var.Debug Then Std.DisplayComment(Comment := Var.SQL)
+
+Var.Rows := Std.ExecuteSQL(SQL := Var.SQL).Rows
+
+Exit Macro Var.Rows
+

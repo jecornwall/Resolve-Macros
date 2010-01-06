@@ -1,0 +1,21 @@
+'PersonMergeComments
+Var.PersonIDStr := Macro.Execute.StringFromCollection(Col := In.PersonIDs, Del := ",")
+
+'Doing a SQL insert here to preserve all those fields that can't be directly altered with the creatcomment function
+Var.SQL := "insert into tblcomment "|CRLF|
+		"(ownertype, ownerid, commenttext, commentrtf, issystem, CreatedByID, CreatedDateTime, ModifiedByID, ModifiedDateTime, AsAtDate) "|CRLF|
+		"select  "|CRLF|
+		"'P' as OwnerType, "|CRLF|
+		In.NewPerson.Fields.PersonID.Value |" as OwnerID, "|CRLF|
+		"CommentText as CommentText, "|CRLF|
+		"CommentRTF as CommentRTF, "|CRLF|
+		"IsSystem as IsSystem, "|CRLF|
+		"CreatedByID as CreatedByID, "|CRLF|
+		"CreatedDateTime as CreatedDateTime, "|CRLF|
+		"ModifiedByID as ModifiedByID, "|CRLF|
+		"ModifiedDateTime as ModifiedDateTime, "|CRLF|
+		"AsAtDate as AsAtDate "|CRLF|
+		"from tblcomment where ownertype = 'P' "|CRLF|
+		"and ownerid in ("|Var.PersonIDStr|")"
+
+Std.ExecuteSQL(SQL := Var.SQL)

@@ -1,0 +1,58 @@
+'FieldTypeMapping
+'Original Code Jason Cornwall January 2009
+'	Horribly lookup table type thing for determining which column to look at in the udfvalue table based on the udftype.
+'	I don't believe this sort of reference data is stored in the database. If it is, change my code to use it. 
+
+Var.Collection	:= New.Collection
+
+Var.Currency		:= New.Itemlist
+Var.Currency.Code	:= "CUR"
+Var.Currency.Column	:= "ValueAsNumber"
+Var.Collection.Add(Value := Var.Currency)
+
+Var.Date		:= New.Itemlist
+Var.Date.Code		:= "DAT"
+Var.Date.Column		:= "ValueAsDate"
+Var.Collection.Add(Value := Var.Date)
+
+
+Var.MCheckBox		:= New.Itemlist
+Var.MCheckBox.Code	:= "MCB"
+Var.MCheckBox.Column	:= "UDFElementID"
+Var.Collection.Add(Value := Var.MCheckBox)
+
+Var.Number		:= New.Itemlist
+Var.Number.Code		:= "NUM"
+Var.Number.Column	:= "ValueAsNumber"
+Var.Collection.Add(Value := Var.Number)
+
+Var.RTF			:= New.Itemlist
+Var.RTF.Code		:= "RTF"
+Var.RTF.Column		:= "ValueAsRTF"
+Var.Collection.Add(Value := Var.RTF)
+
+
+Var.Dropdown		:= New.Itemlist
+Var.Dropdown.Code	:= "SEL"
+Var.Dropdown.Column	:= "UDFElementID"
+Var.Collection.Add(Value := Var.DropDown)
+
+
+Var.Text		:= New.Itemlist
+Var.Text.Code		:= "TXT"
+Var.Text.Column		:= "ValueAsText"
+Var.Collection.Add(Value := Var.Text)
+
+
+Var.SCheckBox		:= New.Itemlist
+Var.SCheckBox.Code	:= "SCB"
+Var.SCheckBox.Column	:= "DisplayValue"
+Var.Collection.Add(Value := Var.SCheckBox)
+
+
+Var.TCheckBox		:= New.Itemlist
+Var.TCheckBox.Code	:= "TRI"
+Var.TCheckBox.Column	:= "DisplayValue"
+Var.Collection.Add(Value := Var.TCheckBox)
+
+Exit Macro Var.Collection

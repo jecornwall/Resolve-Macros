@@ -1,0 +1,13 @@
+'PersonMergeRoleHolders
+Var.PersonIDStr := Macro.Execute.StringFromCollection(Col := In.PersonIDs, Del := ",")
+
+Var.RoleHoldersSQL := "SELECT RoleID, OwnerID, HolderPersonID FROM tblRoleholder WHERE HolderPersonID in ("|Var.PersonIDStr|")"
+
+Var.RoleHolders := Std.ExecuteSQL(SQL := Var.RoleHoldersSQL).Rows
+
+For Each Var.RoleHolder in Var.RoleHolders
+ Begin
+	Std.Person(PersonID := Var.RoleHolder.HolderPersonID).SetRoleOwner(Role := Var.RoleHolder.RoleID, OwnerID := Var.RoleHolder.OwnerID, Detach := True)
+
+	In.NewPerson.SetRoleOwner(Role := Var.RoleHolder.RoleID, OwnerID := Var.RoleHolder.OwnerID)
+ End

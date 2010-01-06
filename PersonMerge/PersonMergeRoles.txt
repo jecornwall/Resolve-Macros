@@ -1,0 +1,4 @@
+'PersonMergeRoles
+'Functional abstraction would have helped in removing some repetition here
+Macro.Execute.PersonMergeRoleHolders(PersonIDs := In.PersonIDs, NewPerson := In.NewPerson)
+Macro.Execute.PersonMergeRoleOwners(PersonIDs := In.PersonIDs, NewPerson := In.NewPerson)

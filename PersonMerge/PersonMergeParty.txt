@@ -1,0 +1,75 @@
+'PersonMerge
+Var.Debug		:= False
+'Original Code Jason Cornwall January 2008
+'	Root macro for some Person Merging functionality. Has crude matching at the moment, but it should be a fairly simple excercise to expand on this
+'
+'	Currently merges fields, customfields, comments, addresses and roleholders into a new person. 
+'		Fields: Grabs the newest available value for each field
+'		UDFS: Same deal
+'		Comments: Creates a copy of all comments on the matched people on our new merged-person
+'		Addresses: Grabs the newest available address and puts on it on our new person. One for each address type
+'		Rolesholders: Establishes all the the roleholders that were on the matched people onto the new merged-person
+'
+'	Some current limitations...
+'		Does not merge UDF's attached to related roleholders
+'		Will not merge Checkbox lists
+'		Will not merge audit trail data
+'		Does not merge historic addresses
+
+'Users of this macro might want to code something to have the end user select the person type through some sort of interaction
+Var.PersonTypeID	:= Ref.PersonTypeID.Party 
+
+'This matching code should be changed to fit your circumstances. For the original purpose of this code, only simple matching was needed (or indeed possible)
+Var.DisPersonSQL 	:= 	"select p.displayname, U.Displayvalue from tblperson p "|CRLF|
+				"left join tbludfvalue u on u.udfid = 224 and u.ownerid = p.personid and u.ownertype = 'P' "|CRLF|
+			   	"where p.persontypeid = "|Var.PersonTypeID|CRLF|
+			    	"and p.displayname is not null "|CRLF|
+				"and u.displayvalue is not null "|CRLF|
+				"and p.obsolete = 'N'"|CRLF|
+				"	group by p.displayname, "|CRLF|
+				"	u.displayvalue "|CRLF|
+				"	having count(*) > 1 "
+
+If Var.Debug Then Std.DisplayComment(Comment := Var.DisPersonSQL)
+
+Var.DisPersons		:= Std.ExecuteSQL(SQL := Var.DisPersonSQL).Rows
+
+For Each Var.PersonRow in Var.DisPersons
+ Begin
+	Var.NewPersonID	:= Std.CreatePerson(PersonTypeCode := Std.CodeFromID(PersonTypeID := Var.PersonTypeID))
+	Var.NewPerson   := Std.Person(PersonID := Var.NewPersonID)
+	
+	'This code will similarly need to be changed to fit your circumstances, to fit in with yout changes of the first SQL chunk up there
+	Var.MatchesSQL 	:= 	"select p.personid from tblperson p "|CRLF|
+				"left join tbludfvalue u on u.udfid = "|Ref.UDFID.Person.Date_of_Birth|" and u.ownerid = p.personid and u.ownertype = 'P' "|CRLF|
+			   	"where p.persontypeid = "|Var.PersonTypeID|CRLF|
+			    	"and p.displayname = "|Var.PersonRow.Displayname.SQLString|CRLF|
+				"and u.displayvalue = "|Var.PersonRow.Displayvalue.SQLString|CRLF|
+				"and p.obsolete = 'n'"|CRLF|
+				"order by p.createddate desc"
+
+	If Var.Debug Then Std.DisplayComment(Comment := Var.MatchesSQL)
+
+	Var.Matches	:= Std.ExecuteSQL(SQL := Var.MatchesSQL).Rows
+
+	Var.MatchIDs	:= Macro.Execute.ColumnFromRows(Rows := Var.Matches, ColumnName := "personid")
+
+	Macro.Execute.PersonMergeFields(PersonIDs := Var.MatchIDs, NewPerson := Var.NewPerson)
+	Macro.Execute.PersonMergeUDFs(PersonIDs := Var.MatchIDs, NewPerson := Var.NewPerson)
+	Macro.Execute.PersonMergeAddresses(PersonIDs := Var.MatchIds, NewPerson := Var.NewPerson)
+	Macro.Execute.PersonMergeComments(PersonIDs := Var.MatchIDs, NewPerson := Var.NewPerson)
+	Macro.Execute.PersonMergeRoles(PersonIDs := Var.MatchIDs, NewPerson := Var.NewPerson)
+	
+	If not Var.Debug Then
+	 Begin
+		For Each Var.MatchID in Var.MatchIDs
+		 Begin
+			Var.MatchPerson := Std.Person(PersonID := Var.MatchID)
+	
+			Var.MatchPerson.CreateComment(Comment := "Person data has been merged with person with personid "|Var.NewPersonID|" on "|Today, IsSystem := True)
+			Var.MatchPerson.SetField(Fieldname := "Obsolete", Value := "Y")
+		 End
+	 End
+ End
+
+Exit Macro True

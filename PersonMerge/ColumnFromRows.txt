@@ -1,0 +1,13 @@
+'ColumnFromRows
+'*************************************************** 
+' Parameters: In.Rows, a collection of itemlists. 'In.ColumnName, a string 
+'*************************************************** 
+
+Var.Column := New.Collection 
+
+For Each Var.Row in In.Rows 
+ Begin 
+Var.Column.Add(Value := Var.Row.(In.ColumnName)) 
+ End 
+
+Exit Macro Var.Column

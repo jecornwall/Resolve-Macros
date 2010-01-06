@@ -1,0 +1,19 @@
+Var.Addresses := Macro.Execute.PersonMergeAddressesSQL(PersonIDs := In.PersonIDs)
+
+For Each Var.Address in Var.Addresses
+ Begin
+	Var.AddressDetailsSQL 	:= "Select * from tblpersonaddress where addressID = "|Var.Address.AddressID
+
+	Var.AddressDetails	:= Std.ExecuteSQL(SQL := Var.AddressDetailsSQL).FirstRow
+
+	In.NewPerson.SetAddress(AddressCode 	:= Var.AddressDetails.AddressCode,
+				Address1 	:= Var.AddressDetails.Address1, 
+				Address2 	:= Var.AddressDetails.Address2,
+				Address3 	:= Var.AddressDetails.Address3,
+				Address4 	:= Var.AddressDetails.Address4,
+				City	 	:= Var.AddressDetails.City,
+				StateCode	:= Var.AddressDetails.State,
+				PostCode 	:= Var.AddressDetails.PostCode,
+				CountryCode	:= Std.CodeFromID(CountryID := Var.AddressDetails.CountryCode),
+				DPID		:= Var.AddressDetails.DPID)
+ End
